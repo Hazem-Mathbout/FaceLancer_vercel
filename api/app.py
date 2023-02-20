@@ -271,15 +271,16 @@ def scrapkafiil(requests_session=None, output=None):
     if output == None:
         requests_session = requests.Session()
         try:
-            # output = json.loads(request.data, strict = False)
-            output = request.get_json()
+            output = json.loads(request.data, strict=False)
+            # output = request.get_json()
         except Exception as exc:
             pass
             print(
                 f"generated an exception when convert to json in route /resKafi => : {exc}")
     else:
         isFuncInternal = True
-    num_bage_kafiil = 1 if output["num_bage_kafiil"] == "None" or 0 else output["num_bage_kafiil"]
+
+    num_bage_kafiil = 1 if output["num_bage_kafiil"] == "None" else output["num_bage_kafiil"]
     category_kafiil = output["category_kafiil"]
     delivery_duration_for_kafiil = "" if output[
         "delivery_duration_for_kafiil"] == "None" else output["delivery_duration_for_kafiil"]
@@ -292,11 +293,11 @@ def scrapkafiil(requests_session=None, output=None):
     listResult = []
 
     if category_kafiil == "None":
-        URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
+        URL = f"https://kafiil.com/projects?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     else:
-        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
+        URL = f"https://kafiil.com/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     try:
-        sourcPage = requests_session.get(URL, headers=HEADERS, )
+        sourcPage = requests_session.get(URL, headers=HEADERS)
         sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
         tempRes = sourcSoup.findAll(
             name='div', attrs={"class": "project-box active"})
@@ -386,8 +387,8 @@ def fetchNotifications():
     notif_hour = payload['notif_hour']
     notif_min = payload['notif_min']
     websiteDisabled = payload['websiteDisabled']
-    notif_min = 45  # <-- ovveride notif_min the client option -->
-    notif_hour = 0  # <-- ovveride notif_hour the client option -->
+    notif_min = 0  # <-- ovveride notif_min the client option -->
+    notif_hour = 6  # <-- ovveride notif_hour the client option -->
     td_client = timedelta(hours=notif_hour, minutes=notif_min)
     LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
     # LISTSCRAPING = getListScrappingForNotificationa(websiteDisabled)
