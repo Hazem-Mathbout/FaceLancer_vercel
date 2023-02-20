@@ -390,8 +390,8 @@ def fetchNotifications():
     notif_min = 0  # <-- ovveride notif_min the client option -->
     notif_hour = 6  # <-- ovveride notif_hour the client option -->
     td_client = timedelta(hours=notif_hour, minutes=notif_min)
-    LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
-    # LISTSCRAPING = getListScrappingForNotificationa(websiteDisabled)
+    # LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
+    LISTSCRAPING = getListScrappingForNotificationa(websiteDisabled)
     with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
         future_to_website = {executor.submit(
             website, requests_session, payload): website for website in LISTSCRAPING}
@@ -425,6 +425,21 @@ def fetchNotifications():
     print(f"website blocked from notification is:{websiteDisabled}")
     requests_session.close()
     return jsonify(final_Data_Notification)
+
+
+def getListScrappingForNotificationa(listNotAllowed: str) -> list:
+    listSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
+    if (listNotAllowed == "" or listNotAllowed == ","):
+        return listSCRAPING
+    makeListNotAllowed = listNotAllowed.removesuffix(',').split(",")
+    for element in makeListNotAllowed:
+        if element.__contains__('khamsat'):
+            listSCRAPING.remove(scrapKhamsat)
+        elif element.__contains__('mostaql'):
+            listSCRAPING.remove(scrapmostaql)
+        else:
+            listSCRAPING.remove(scrapkafiil)
+    return listSCRAPING
 
 # ------------------------ End Notification scrapping--------------
 
