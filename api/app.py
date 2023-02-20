@@ -481,6 +481,74 @@ def removeUnSpportWebSiteForSearching(list_website, searchTerm):
 
 # ------------------------ End Home scrapping--------------
 
+# ------------------------ Start updateInfo scrapping-------------------
+
+
+@app.route("/updateInfo", methods=["POST", "GET"])
+def updateInfo():
+    requests_session = requests.Session()
+    number_of_offers = None
+    payload = json.loads(request.data, strict=False)
+    url = str(payload["url"])
+    basePage = requests_session.get(url, headers=HEADERS)
+    soup = BeautifulSoup(basePage.text, "lxml")
+    try:
+        if url.__contains__("kafiil.com"):
+            number_of_offers = soup.find(name='table', attrs={
+                                         "class": "info-table"}).findAll('tr')[3].findAll('td')[1].text.strip()
+            number_of_offers = f"التعليقات ({number_of_offers})"
+        elif url.__contains__("khamsat.com"):
+            number_of_offers = soup.findAll(name='div', attrs={
+                                            "class": "card-header bg-white"})[1].find(name='h3').text.strip()
+        elif url.__contains__("mostaql.com"):
+            number_of_offers = soup.find('table', attrs={
+                                         "class": "table table-borderless mrg--an text-meta"}).findAll('tr')[5].findAll('td')[1].text.strip()
+            number_of_offers = f"التعليقات ({number_of_offers})"
+    except Exception as exc:
+        print(
+            f"Exception occure when updated info in route /updateInfo, the error is: {exc}")
+        pass
+    print(number_of_offers)
+    requests_session.close()
+    return jsonify(number_of_offers)
+
+# ------------------------ End updateInfo scrapping--------------
+
+# ------------------------ Start searchKhamsat scrapping-------------------
+
+
+@app.route('/searchKhamsat', methods=["POST", "GET"])
+def searchKhamsat():
+    requests_session = requests.Session()
+    allData = []
+    dataLoadMore = None
+    total_num_page = 0
+    try:
+        output = request.get_json()
+        dataLoadMore = "" if output["dataLoadMore"] == None else output["dataLoadMore"]
+        total_num_page = output["total_num_page"]
+        num_page_khamsat = 1
+        offset = 0
+        limit = 25
+        payload_khamsat = {"dataLoadMore": dataLoadMore,
+                           "num_page_khamsat": num_page_khamsat, "offset_khamsat": offset, "limit": limit}
+        for _ in range(total_num_page):
+            data = scrapKhamsat(requests_session, output=payload_khamsat)
+            data_object = json.loads(data)
+            lastElement = data_object.pop()
+            num_page_khamsat = num_page_khamsat + 1
+            payload_khamsat["dataLoadMore"] = payload_khamsat["dataLoadMore"] + \
+                lastElement["all_post_id"]
+            payload_khamsat["num_page_khamsat"] = num_page_khamsat
+            allData.extend(data_object)
+    except Exception as exc:
+        print(f"generated an exception in searchKhamsat => : {exc}")
+    print(f"========== Number of List Search is : {len(allData)}")
+    requests_session.close()
+    return jsonify(allData)
+
+# ------------------------ End searchKhamsat scrapping--------------
+
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
