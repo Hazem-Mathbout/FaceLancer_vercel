@@ -301,6 +301,7 @@ def scrapkafiil(requests_session=None, output=None):
         tempRes = sourcSoup.findAll(
             name='div', attrs={"class": "project-box active"})
         tempRes = tempRes[offset: offset+limit]
+        print(f"tempRes befor apply operation is: {len(tempRes)}")
         if len(tempRes) != 0:
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 future_to_offer = {executor.submit(
@@ -373,6 +374,56 @@ def taskScrapKafiil(res, requests_session, budget_min, budget_max) -> dict:
 # ------------------------ End Kafiil scrapping---------------------------
 
 # ------------------------ Start Notification scrapping-------------------
+
+
+@app.route("/notification", methods=["POST", "GET"])
+def fetchNotifications():
+    requests_session = requests.Session()
+    allData = []
+    final_Data_Notification = []
+    payload = json.loads(request.data, strict=False)
+    # notif_day = payload['notif_day']
+    notif_hour = payload['notif_hour']
+    notif_min = payload['notif_min']
+    websiteDisabled = payload['websiteDisabled']
+    notif_min = 45  # <-- ovveride notif_min the client option -->
+    notif_hour = 0  # <-- ovveride notif_hour the client option -->
+    td_client = timedelta(hours=notif_hour, minutes=notif_min)
+    LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
+    # LISTSCRAPING = getListScrappingForNotificationa(websiteDisabled)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+        future_to_website = {executor.submit(
+            website, requests_session, payload): website for website in LISTSCRAPING}
+        for future in concurrent.futures.as_completed(future_to_website):
+            website = future_to_website[future]
+            try:
+                data = future.result()
+            except Exception as exc:
+                print('%r generated an exception in route /notification: %s' %
+                      (website, exc))
+            else:
+                output = json.loads(data)
+                allData.extend(output)
+    allData_without_allPostId = [
+        item for item in allData if item.get('all_post_id') == None]
+    for offer in allData_without_allPostId:
+        date_now = datetime.now().utcnow()
+        date_offer_string = offer['dateTime']
+        date_time_offer_obj = datetime.strptime(
+            date_offer_string, '%Y-%m-%d %H:%M:%S')
+        td_all_info = date_now - date_time_offer_obj
+        days = td_all_info.days
+        hours, remainder = divmod(td_all_info.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        td_offer = timedelta(hours=hours, minutes=minutes)
+        # print(f"num days:({days}) num hours:({hours}) num minutes:({minutes}) --> ({td_offer}) , ({td_client})")
+        if td_client >= td_offer and days == 0:
+            final_Data_Notification.append(offer)
+    print(
+        f"Number Offers in Notification List is: {len(final_Data_Notification)}")
+    print(f"website blocked from notification is:{websiteDisabled}")
+    requests_session.close()
+    return jsonify(final_Data_Notification)
 
 # ------------------------ End Notification scrapping---------------------------
 
