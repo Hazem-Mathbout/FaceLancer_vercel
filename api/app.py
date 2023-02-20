@@ -426,7 +426,60 @@ def fetchNotifications():
     requests_session.close()
     return jsonify(final_Data_Notification)
 
-# ------------------------ End Notification scrapping---------------------------
+# ------------------------ End Notification scrapping--------------
+
+
+# ------------------------ Start Home scrapping-------------------
+
+@app.route('/home', methods=["POST", "GET"])
+def offersForHome():
+    requests_session = requests.Session()
+    allData = []
+    payload = json.loads(request.data, strict=False)
+    LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
+    NEW_LIST_SCRAPING = removeUnSpportWebSiteForSearching(
+        LISTSCRAPING, payload["searchTerm"])
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+        future_to_website = {executor.submit(
+            website, requests_session, payload): website for website in NEW_LIST_SCRAPING}
+        for future in concurrent.futures.as_completed(future_to_website):
+            website = future_to_website[future]
+            try:
+                data = future.result()
+            except Exception as exc:
+                print('%r generated an exception in route /home: %s' %
+                      (website, exc))
+            else:
+                output = json.loads(data)
+                allData.extend(output)
+                # try :
+                #     allData.sort(key=lambda x: x['dateTime'], reverse=True)
+                # except:
+                #     print("Key dateTime Not Found!")
+    mapAllPostId = [item for item in allData if item.get(
+        'all_post_id') != None]
+    sortedAllData = [
+        item for item in allData if item.get('all_post_id') == None]
+    try:
+        sortedAllData.sort(key=lambda x: x['dateTime'], reverse=True)
+    except Exception as exc:
+        print(f"Error occure when sorting offers home, error is:{exc}")
+    sortedAllData.extend(mapAllPostId)
+    print("number offers in home: ", len(sortedAllData))
+    requests_session.close()
+    return jsonify(sortedAllData)
+
+
+def removeUnSpportWebSiteForSearching(list_website, searchTerm):
+    List_Not_Support_Searching = [scrapKhamsat]
+    if searchTerm != "":
+        for website in list_website:
+            for websiteNotSupportSearch in List_Not_Support_Searching:
+                if websiteNotSupportSearch == website:
+                    list_website.remove(websiteNotSupportSearch)
+    return list_website
+
+# ------------------------ End Home scrapping--------------
 
 
 if __name__ == '__main__':
