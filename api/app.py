@@ -453,7 +453,7 @@ def offersForHome():
     payload = json.loads(request.data, strict=False)
     LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
     NEW_LIST_SCRAPING = removeUnSpportWebSiteForSearching(
-        LISTSCRAPING, payload["searchTerm"])
+        LISTSCRAPING, payload)
     with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
         future_to_website = {executor.submit(
             website, requests_session, payload): website for website in NEW_LIST_SCRAPING}
@@ -485,9 +485,9 @@ def offersForHome():
     return jsonify(sortedAllData)
 
 
-def removeUnSpportWebSiteForSearching(list_website, searchTerm):
+def removeUnSpportWebSiteForSearching(list_website, payload):
     List_Not_Support_Searching = [scrapKhamsat]
-    if searchTerm != "":
+    if payload["budget_max"] != "" or payload["budget_min"] != "" or payload["category_mostaql"] != "" or payload["category_kafiil"] != "" or payload["delivery_duration_for_kafiil"] != "" or payload["delivery_duration_for_mostaql"] != "" or payload["skills_for_mostaql"] != "":
         for website in list_website:
             for websiteNotSupportSearch in List_Not_Support_Searching:
                 if websiteNotSupportSearch == website:
