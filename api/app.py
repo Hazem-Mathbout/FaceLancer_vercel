@@ -1,3 +1,4 @@
+import uuid
 from flask import Flask, request, jsonify
 from bs4 import BeautifulSoup
 import requests
@@ -487,7 +488,7 @@ def offersForHome():
 
 def removeUnSpportWebSiteForSearching(list_website, payload):
     List_Not_Support_Searching = [scrapKhamsat]
-    if payload["budget_max"] != "" or payload["budget_min"] != "" or payload["category_mostaql"] != "" or payload["category_kafiil"] != "" or payload["delivery_duration_for_kafiil"] != "" or payload["delivery_duration_for_mostaql"] != "" or payload["skills_for_mostaql"] != "":
+    if (payload["budget_max"] != "" and payload["budget_max"] != "None") or (payload["budget_min"] != "" and payload["budget_min"] != "None") or (payload["category_mostaql"] != "" and payload["category_mostaql"] != "None") or (payload["category_kafiil"] != "" and payload["category_kafiil"] != "None") or (payload["delivery_duration_for_kafiil"] != "" and payload["delivery_duration_for_kafiil"] != "None") or (payload["delivery_duration_for_mostaql"] != "" and payload["delivery_duration_for_mostaql"] != "None") or (payload["skills_for_mostaql"] != "" and payload["skills_for_mostaql"] != "None"):
         for website in list_website:
             for websiteNotSupportSearch in List_Not_Support_Searching:
                 if websiteNotSupportSearch == website:
@@ -564,6 +565,87 @@ def searchKhamsat():
 
 # ------------------------ End searchKhamsat scrapping--------------
 
+
+# ------------------------ Start freelancer scrapping-------------------
+@app.route('/freelancer', methods=['GET'])
+def scrape_freelancer():
+    base_url = "https://www.freelancer.com"
+    url = "https://www.freelancer.com/jobs"
+    query_params = request.args.to_dict()
+
+    # Set up the request parameters
+
+    params = {
+        "keywords": query_params.get('keywords'),
+        "limit": query_params.get('limit', '50'),
+        "offset": query_params.get('offset', '0'),
+        "job_status": query_params.get('job_status'),
+        "project_type": query_params.get('project_type'),
+        "budget_range": query_params.get('budget_range'),
+        "sort": query_params.get('sort', 'latest'),
+        "languages[]": query_params.get('languages[]'),
+        "skills[]": query_params.get('skills[]'),
+        "job_success": query_params.get('job_success')
+    }
+
+    # Send the request to the server and get the response
+    response = requests.get(url, params=params)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Extract the job cards and get information about each job
+    jobs = []
+    job_cards = soup.find_all('div', class_='JobSearchCard-item-inner')
+    print(len(job_cards))
+    for card in job_cards:
+        job = {}
+
+        # Generate a random ID for each job
+        job['job_id'] = str(uuid.uuid4())
+
+        job_title = card.find('a', class_='JobSearchCard-primary-heading-link')
+        job['title'] = job_title.text.strip() if job_title else None
+
+        job['status'] = 'open'
+
+        job_link = card.find(
+            'a', class_='JobSearchCard-primary-heading-link')['href']
+        job['link'] = base_url + job_link if job_link else None
+
+        job_desc = card.find('p', class_='JobSearchCard-primary-description')
+        job['description'] = job_desc.text.strip() if job_desc else None
+
+        # job_budget = card.find('span', class_='JobSearchCard-primary-price')
+        # job['budget'] = job_budget.text.strip() if job_budget else None
+
+        job_skills = card.find_all(
+            'a', class_='JobSearchCard-primary-tagsLink')
+        job['skills'] = [skill.text.strip()
+                         for skill in job_skills] if job_skills else None
+
+        job_bids = card.find('div', class_='JobSearchCard-secondary-price')
+        job['bids'] = job_bids.text.strip() if job_bids else None
+
+        job_proposals = card.find(
+            'div', class_='JobSearchCard-secondary-entry')
+        job['proposals'] = job_proposals.text.strip() if job_proposals else None
+
+        job_verified = card.find(
+            'div', class_='JobSearchCard-primary-heading-status Tooltip--top')
+        job['verified'] = True if job_verified else False
+
+        job_time = card.find(
+            'span', class_='JobSearchCard-primary-heading-days')
+        job['time'] = job_time.text.strip() if job_time else None
+
+        jobs.append(job)
+
+    return jsonify(jobs)
+# ------------------------ End freelancer scrapping--------------
+
+
+# ------------------------ Start upwork scrapping-------------------
+
+# ------------------------ End upwork scrapping--------------
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
