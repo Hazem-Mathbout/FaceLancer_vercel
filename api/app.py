@@ -488,7 +488,7 @@ def offersForHome():
 
 def removeUnSpportWebSiteForSearching(list_website, payload):
     List_Not_Support_Searching = [scrapKhamsat]
-    if (payload["budget_max"] != "" and payload["budget_max"] != "None") or (payload["budget_min"] != "" and payload["budget_min"] != "None") or (payload["category_mostaql"] != "" and payload["category_mostaql"] != "None") or (payload["category_kafiil"] != "" and payload["category_kafiil"] != "None") or (payload["delivery_duration_for_kafiil"] != "" and payload["delivery_duration_for_kafiil"] != "None") or (payload["delivery_duration_for_mostaql"] != "" and payload["delivery_duration_for_mostaql"] != "None") or (payload["skills_for_mostaql"] != "" and payload["skills_for_mostaql"] != "None"):
+    if (payload["budget_max"] != "" and payload["budget_max"] != "None" and payload["budget_max"] != "10000.0") or (payload["budget_min"] != "" and payload["budget_min"] != "None" and payload["budget_min"] != "25.0") or (payload["category_mostaql"] != "" and payload["category_mostaql"] != "None") or (payload["category_kafiil"] != "" and payload["category_kafiil"] != "None") or (payload["delivery_duration_for_kafiil"] != "" and payload["delivery_duration_for_kafiil"] != "None") or (payload["delivery_duration_for_mostaql"] != "" and payload["delivery_duration_for_mostaql"] != "None") or (payload["skills_for_mostaql"] != "" and payload["skills_for_mostaql"] != "None"):
         for website in list_website:
             for websiteNotSupportSearch in List_Not_Support_Searching:
                 if websiteNotSupportSearch == website:
