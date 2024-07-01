@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="F:\Back end projects\FaceLancer_vercel\env"
+VIRTUAL_ENV="E:\Back end projects\FaceLancer_vercel\env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
