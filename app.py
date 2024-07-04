@@ -11,13 +11,13 @@ from routes.update_info import updateInfo_blueprint
 
 app = Flask(__name__)
 
-app.register_blueprint(home_blueprint, url_prefix="/home")
-app.register_blueprint(kafiil_blueprint, url_prefix="/kafiil")
-app.register_blueprint(khamsat_blueprint, url_prefix="/khamsat")
-app.register_blueprint(mostaql_blueprint, url_prefix="/mostaql")
-app.register_blueprint(notification_blueprint, url_prefix="/notification")
-app.register_blueprint(searchKhamsat_blueprint, url_prefix="/searchKhamsat")
-app.register_blueprint(updateInfo_blueprint, url_prefix="/updateInfo")
+app.register_blueprint(home_blueprint, url_prefix="")
+app.register_blueprint(kafiil_blueprint, url_prefix="")
+app.register_blueprint(khamsat_blueprint, url_prefix="")
+app.register_blueprint(mostaql_blueprint, url_prefix="")
+app.register_blueprint(notification_blueprint, url_prefix="")
+app.register_blueprint(searchKhamsat_blueprint, url_prefix="")
+app.register_blueprint(updateInfo_blueprint, url_prefix="")
 
 
 
