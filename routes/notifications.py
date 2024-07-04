@@ -33,8 +33,16 @@ def fetchNotifications():
             except Exception as exc:
                 print('%r generated an exception in route /notification: %s' % (website, exc))
             else:
-                output = json.loads(data)
-                allData.extend(output)
+                if isinstance(data, list):
+                    allData.extend(data)
+                try:
+                    output = json.loads(data)
+                    if isinstance(output, list):
+                        allData.extend(output)
+                    else:
+                        print("Warning: The loaded JSON data is not a list.")
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
     
     allData_without_allPostId = [item for item in allData if item.get('all_post_id') is None]
     

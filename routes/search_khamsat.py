@@ -22,13 +22,16 @@ def searchKhamsat():
             "num_page_khamsat": num_page_khamsat, "offset_khamsat": offset, "limit": limit}
         for _ in range(total_num_page):
             data = scrapKhamsat(requests_session=requests_session, output=payload_khamsat)
-            data_object = json.loads(data)
-            lastElement = data_object.pop()
-            num_page_khamsat = num_page_khamsat + 1
-            payload_khamsat["dataLoadMore"] = payload_khamsat["dataLoadMore"] + \
-                lastElement["all_post_id"]
-            payload_khamsat["num_page_khamsat"] = num_page_khamsat
-            allData.extend(data_object)
+            if data and isinstance(data, list): 
+                # data_object = json.loads(data)
+                lastElement = data.pop()
+                num_page_khamsat = num_page_khamsat + 1
+                payload_khamsat["dataLoadMore"] = payload_khamsat["dataLoadMore"] + \
+                    lastElement["all_post_id"]
+                payload_khamsat["num_page_khamsat"] = num_page_khamsat
+                allData.extend(data)
+            else:
+                print("**There something wrong in searchKhamsat Logic**")
     except Exception as exc:
         print(f"generated an exception in searchKhamsat => : {exc}")
     print(f"========== Number of List Search is : {len(allData)}")
