@@ -25,7 +25,7 @@ def fetchNotifications():
     LISTSCRAPING = getListScrappingForNotification(websiteDisabled)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
-        future_to_website = {executor.submit(website, requests_session, payload): website for website in LISTSCRAPING}
+        future_to_website = {executor.submit(website, payload, requests_session): website for website in LISTSCRAPING}
         for future in concurrent.futures.as_completed(future_to_website):
             website = future_to_website[future]
             try:

@@ -17,7 +17,7 @@ def res_Kafi(requests_session=None, output=None):
             pass
     else:
         isFuncInternal = True
-    response = scrapkafiil(output, requests_session, isFuncInternal)
+    response = scrapkafiil(output=output, requests_session=requests_session)
 
     if isFuncInternal:
         finalRes = json.dumps(response)

@@ -17,7 +17,7 @@ def res_kham(requests_session=None, output=None):
             pass
     else:
         isFuncInternal = True
-    response = scrapKhamsat(output, requests_session, isFuncInternal)
+    response = scrapKhamsat(output=output, requests_session=requests_session)
 
     requests_session.close()
 

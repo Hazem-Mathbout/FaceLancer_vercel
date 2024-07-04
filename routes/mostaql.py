@@ -17,7 +17,7 @@ def res_Most(requests_session=None, output=None):
             pass
     else:
         isFuncInternal = True
-    response = scrapmostaql(output, requests_session, isFuncInternal)
+    response = scrapmostaql(output=output, requests_session=requests_session)
 
     if isFuncInternal:
         finalRes = json.dumps(response)

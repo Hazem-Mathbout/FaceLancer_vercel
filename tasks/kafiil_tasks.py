@@ -6,7 +6,7 @@ HEADERS = {
     'Accept-Language': 'en-US, en;q=0.5'
 }
 
-def scrapkafiil(output, requests_session, isFuncInternal):
+def scrapkafiil(output, requests_session):
     num_bage_kafiil = 1 if output["num_bage_kafiil"] == "None" else output["num_bage_kafiil"]
     category_kafiil = output["category_kafiil"]
     delivery_duration_for_kafiil = "" if output[

@@ -6,7 +6,7 @@ HEADERS = {
     'Accept-Language': 'en-US, en;q=0.5'
 }
 
-def scrapmostaql(output, requests_session, isFuncInternal):
+def scrapmostaql(output, requests_session):
     offset = output["offset_mostaql"]
     limit = 25 if output["limit"] > 25 else output["limit"]
     budget_max = 10000 if output["budget_max"] == "None" else output["budget_max"]
